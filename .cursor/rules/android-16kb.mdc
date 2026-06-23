@@ -1,0 +1,24 @@
+---
+description: React Native Android 16KB memory page size support — audit, fix, build, and validate. Triggers on work in android/ for RN projects, or when handling Play Console "16 KB page size" warnings / 16KB-device crashes.
+globs:
+  - android/**
+  - "*.gradle"
+  - "*.gradle.kts"
+  - gradle.properties
+  - package.json
+alwaysApply: false
+---
+
+# React Native Android — 16KB Page Size Support (Cursor Rule)
+
+When working on 16KB page size compliance for this React Native Android project, follow the full skill in `SKILL.md` and the behavior contract in `AGENTS.md` (same folder). Summary of non-negotiables:
+
+- **Goal = `.so` files aligned to 16KB (2**14 = 16384)**, achieved via AGP 8.5.1+, NDK r28+ (for compiled code), and `useLegacyPackaging = false`. The manifest flag `android.app.supports_16kb_page_size` is NOT the fix; never add `android:max_aspect` for this.
+- **Validate, don't assume.** A green build is not proof. Run and quote:
+  - `zipalign -c -P 16 -v 4 app-release.apk`
+  - `bundletool dump config --bundle=app-release.aab | grep -i alignment` → must include `PAGE_ALIGNMENT_16K`
+  - `adb shell getconf PAGE_SIZE` on a 16KB target → `16384`
+  - or `bash scripts/check_elf_alignment.sh <apk|aab>`
+- **Audit native deps with evidence** (Reanimated, Gesture Handler, Screens, camera, maps, video, payments, Firebase, ML, BLE, OpenCV/FFmpeg/SQLite). See `references/dependency-matrix.md`. Flag unknowns as risks.
+- **Do NOT** blindly upgrade RN/Gradle/AGP/Kotlin/NDK (check wrapper compat, warn first), remove working code without explanation, add fake manifest flags, or touch package name / version code / signing / keystore / flavors / CI unless explicitly asked.
+- **Report** with: Summary, Files Changed, Compatibility Status, Validation Commands Run, Remaining Risks, Next Steps.

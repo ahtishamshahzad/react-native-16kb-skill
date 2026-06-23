@@ -1,0 +1,22 @@
+# Windsurf Rules — React Native Android 16KB Page Size Support
+#
+# Copy this file to the ROOT of your React Native project (rename stays `.windsurfrules`),
+# or paste its contents into Windsurf's global/workspace rules. Full skill: SKILL.md + AGENTS.md.
+
+When the task involves 16KB memory page size compliance for this React Native Android app, follow SKILL.md and AGENTS.md exactly. Key rules:
+
+- The requirement is that every native `.so` library is ELF-aligned to 16KB (2**14 = 16384). Achieve it with AGP 8.5.1+, NDK r28+ (only for compiled native code), and `useLegacyPackaging = false`. The manifest flag `android.app.supports_16kb_page_size` is NOT the official fix; never add `android:max_aspect` for this purpose.
+
+- Never claim 16KB support because the build passed. Prove it and quote the output:
+  * zipalign -c -P 16 -v 4 app-release.apk
+  * bundletool dump config --bundle=app-release.aab | grep -i alignment   (must include PAGE_ALIGNMENT_16K)
+  * adb shell getconf PAGE_SIZE   (must be 16384 on the test target)
+  * or: bash scripts/check_elf_alignment.sh <apk|aab>
+
+- Audit every native dependency with evidence (Reanimated, Gesture Handler, Screens, camera, maps, video, audio, payments, Firebase, ML, BLE, OpenCV/FFmpeg/SQLite). See references/dependency-matrix.md. Flag unknowns as risks; never assume compatibility.
+
+- Do NOT: blindly upgrade RN/Gradle/AGP/Kotlin/NDK (check Gradle wrapper compatibility and warn first); remove working code without explaining why; add fake manifest metadata; or change package name, version code, signing config, keystore, build flavors, or CI/CD unless explicitly requested.
+
+- Make surgical, minimal edits that match the project's existing Gradle DSL (Groovy vs Kotlin, packaging {} vs packagingOptions {}).
+
+- Final report must include: Summary, Files Changed, Compatibility Status, Validation Commands Run, Remaining Risks, Next Steps.
