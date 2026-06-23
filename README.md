@@ -19,6 +19,16 @@ npx skills add ahtishamshahzad/react-native-16kb-skill
 
 This clones the skill and installs it into the right place for every agent it detects (e.g. `./.agents/skills/…`, symlinked into Claude Code / Windsurf / Devin). No manual copying needed.
 
+### Local vs global scope
+
+| Scope | Command | Where it installs | Use when |
+|-------|---------|-------------------|----------|
+| **Local** (one project) | `npx skills add ahtishamshahzad/react-native-16kb-skill` (run inside the project — default) | `./.agents/skills/…` in that repo | You want the skill pinned to a specific RN app. |
+| **Global** (all projects) | `npx skills add ahtishamshahzad/react-native-16kb-skill -g` | `~/.agents/skills/…` (symlinked into Claude Code, Cursor, Windsurf, Antigravity, Codex, Gemini CLI, Copilot, Devin, OpenCode) | You want it available everywhere. |
+| **Both** | run the global command once, then the local command in each project | both locations | Available everywhere, plus pinned per-project. |
+
+Handy flags: `--all` (all skills + all agents, no prompts), `-a '*'` (all agents), `-y` (skip prompts), `--copy` (copy instead of symlink). List installs with `npx skills list -g` (global) or `npx skills list` (project).
+
 Other useful CLI commands:
 
 ```bash
@@ -49,6 +59,8 @@ bash install.sh
 mkdir -p /path/to/your-rn-app/.claude/skills
 cp -R . /path/to/your-rn-app/.claude/skills/android-16kb-page-size-support
 ```
+
+**Claude Code scopes (manual):** global = `~/.claude/skills/<name>/` (via `install.sh`); local = `<project>/.claude/skills/<name>/`. Claude Code auto-discovers either. You can have both at once — the project copy takes precedence in that project.
 
 ---
 
